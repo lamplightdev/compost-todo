@@ -8,35 +8,49 @@ class TodoItem extends CompostMixin(HTMLElement) {
         value: {},
         observer: 'observeItem',
       },
+
+      index: {
+        type: Number,
+        value: 0,
+      },
     };
   }
 
   render() {
     return `
+      <style>
+        .done {
+          text-decoration: line-through;
+        }
+      </style>
       <div>
-        <input type="checkbox" on-change="toggleDone">
-        <label></label>
+        <input id="done" type="checkbox" on-change="toggleDone">
+        <label id="label"></label>
         <button on-click="remove">x</button>
       </div>
     `;
   }
 
   observeItem(oldValue, newValue) {
-    this.$s.querySelector('label').textContent
-      = `${newValue.text} (${newValue.done ? '' : 'not '}done)`;
+    this.$id.label.textContent = newValue.text;
 
-    this.$s.querySelector('input').checked = newValue.done;
+    this.$id.done.checked = newValue.done;
+    if (newValue.done) {
+      this.$id.label.classList.add('done');
+    } else {
+      this.$id.label.classList.remove('done');
+    }
   }
 
   toggleDone() {
     this.fire('todo-toggle', {
-      id: this.item.id,
+      index: this.index,
     });
   }
 
   remove() {
     this.fire('todo-remove', {
-      id: this.item.id,
+      index: this.index,
     });
   }
 }

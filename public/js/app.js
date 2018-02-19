@@ -625,35 +625,49 @@ class TodoItem extends CompostMixin(HTMLElement) {
         value: {},
         observer: 'observeItem',
       },
+
+      index: {
+        type: Number,
+        value: 0,
+      },
     };
   }
 
   render() {
     return `
+      <style>
+        .done {
+          text-decoration: line-through;
+        }
+      </style>
       <div>
-        <input type="checkbox" on-change="toggleDone">
-        <label></label>
+        <input id="done" type="checkbox" on-change="toggleDone">
+        <label id="label"></label>
         <button on-click="remove">x</button>
       </div>
     `;
   }
 
   observeItem(oldValue, newValue) {
-    this.$s.querySelector('label').textContent
-      = `${newValue.text} (${newValue.done ? '' : 'not '}done)`;
+    this.$id.label.textContent = newValue.text;
 
-    this.$s.querySelector('input').checked = newValue.done;
+    this.$id.done.checked = newValue.done;
+    if (newValue.done) {
+      this.$id.label.classList.add('done');
+    } else {
+      this.$id.label.classList.remove('done');
+    }
   }
 
   toggleDone() {
     this.fire('todo-toggle', {
-      id: this.item.id,
+      index: this.index,
     });
   }
 
   remove() {
     this.fire('todo-remove', {
-      id: this.item.id,
+      index: this.index,
     });
   }
 }
@@ -674,8 +688,9 @@ class TodoItems extends CompostRepeatMixin(CompostMixin(HTMLElement)) {
     return index;
   }
 
-  updateItem(el, value) {
+  updateItem(el, value, index) {
     el.item = value;
+    el.index = index;
   }
 }
 
@@ -716,11 +731,6 @@ class MyTodo extends CompostMixin(HTMLElement) {
         value: [],
         observer: 'observeItems',
       },
-
-      count: {
-        type: Number,
-        value: 2,
-      },
     };
   }
 
@@ -755,28 +765,24 @@ class MyTodo extends CompostMixin(HTMLElement) {
   }
 
   addItem(event) {
-    this.count += 1;
     this.items = this.items.slice();
     this.items.push({
-      id: this.count - 1,
       text: event.detail.text,
-      done: false,
+      done: event.detail.done,
     });
   }
 
   removeItem(event) {
-    const id = event.detail.id;
+    const index = event.detail.index;
 
     this.items = this.items.slice();
-    const index = this.items.findIndex(item => item.id === id);
     this.items.splice(index, 1);
   }
 
   toggleItem(event) {
-    const id = event.detail.id;
+    const index = event.detail.index;
 
     this.items = this.items.slice();
-    const index = this.items.findIndex(item => item.id === id);
     this.items[index] = {
       ...this.items[index],
       done: !this.items[index].done,

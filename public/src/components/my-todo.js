@@ -10,11 +10,6 @@ class MyTodo extends CompostMixin(HTMLElement) {
         value: [],
         observer: 'observeItems',
       },
-
-      count: {
-        type: Number,
-        value: 2,
-      },
     };
   }
 
@@ -49,28 +44,24 @@ class MyTodo extends CompostMixin(HTMLElement) {
   }
 
   addItem(event) {
-    this.count += 1;
     this.items = this.items.slice();
     this.items.push({
-      id: this.count - 1,
       text: event.detail.text,
-      done: false,
+      done: event.detail.done,
     });
   }
 
   removeItem(event) {
-    const id = event.detail.id;
+    const index = event.detail.index;
 
     this.items = this.items.slice();
-    const index = this.items.findIndex(item => item.id === id);
     this.items.splice(index, 1);
   }
 
   toggleItem(event) {
-    const id = event.detail.id;
+    const index = event.detail.index;
 
     this.items = this.items.slice();
-    const index = this.items.findIndex(item => item.id === id);
     this.items[index] = {
       ...this.items[index],
       done: !this.items[index].done,

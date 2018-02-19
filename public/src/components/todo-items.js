@@ -17,8 +17,9 @@ class TodoItems extends CompostRepeatMixin(CompostMixin(HTMLElement)) {
     return index;
   }
 
-  updateItem(el, value) {
+  updateItem(el, value, index) {
     el.item = value;
+    el.index = index;
   }
 }
 
